@@ -122,12 +122,12 @@ class OfferInformationRetriever:
 
 
 if __name__ == "__main__":
-    for url in list_offers()[-1:]:
+    for url in list_offers():
         tool = OfferInformationRetriever(url)
         long_answer = tool.get_answers_natural_lang_pl()
         long_answer_content = long_answer.content
         json_answer = tool.extract_json_from_answer(long_answer)
-        details = json.loads(json_answer)
+        details = json_answer
         with get_engine().connect() as cur:
             sql = text(
                 """INSERT INTO retrieved_information(url, long_answer, 
@@ -136,12 +136,13 @@ if __name__ == "__main__":
                 :rent_administration_fee, :two_sided);"""
             )
             fee = details["rent_administration_fee"]
-            fee = None if not fee else float(re.sub(r"[^\d\.]", "", fee))
+            if not isinstance(fee, (float, int)):
+                fee = None if not fee else float(re.sub(r"[^\d\.]", "", str(fee)))
             cur.execute(
                 sql,
                 {
                     "url": url,
-                    "long_answer": long_answer,
+                    "long_answer": long_answer_content,
                     "mortgage_register": details["mortgage_register"],
                     "lands_regulated": details["lands_regulated"],
                     "rent_administration_fee": fee,

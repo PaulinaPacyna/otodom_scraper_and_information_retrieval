@@ -12,6 +12,6 @@ CREATE TABLE IF NOT EXISTS retrieved_information (
     long_answer text NOT NULL,
     mortgage_register BOOL_WITH_NA NOT NULl,
     lands_regulated BOOL_WITH_NA NOT NULl,
-    rent_administration_fee FLOAT NOT NULl,
+    rent_administration_fee FLOAT NULl,
     two_sided BOOL_WITH_NA NOT NULl
     );
