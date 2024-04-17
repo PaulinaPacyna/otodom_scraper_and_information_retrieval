@@ -38,11 +38,11 @@ def scrape_offers_and_save():
         if apartment_already_exist(link):
             print(f"Skipping {link}")
             continue
+        wait()
+        desc = parse_description(link)
+        wait()
+        table = parse_table(link)
         with get_engine().connect() as cur:
-            wait()
-            desc = parse_description(link)
-            wait()
-            table = parse_table(link)
             sql = text(
                 """INSERT INTO apartments(url, table_dump, description, 
                 created_at) VALUES(:link, :table, :desc, NOW());"""
