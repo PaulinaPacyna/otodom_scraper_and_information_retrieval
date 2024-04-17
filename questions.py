@@ -37,7 +37,7 @@ def get_offer_info(url) -> Tuple[str, str]:
 
 def get_questions():
     with open("questions.json", "r") as file:
-        return json.load(file)
+        return json.load(file)["questions"]
 
 
 if __name__ == "__main__":

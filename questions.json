@@ -1,6 +1,17 @@
-[
-  "Czy jest założona księga wieczysta?",
-  "Czy są uregulowane grunty?",
-  "Ile wynosi czynsz?",
-  "Czy mieszkanie jest dwustronne?"
-]
+{
+  "questions":
+  [
+    "Czy jest założona księga wieczysta?",
+    "Czy są uregulowane grunty?",
+    "Ile wynosi czynsz?",
+    "Czy mieszkanie jest dwustronne?"
+  ],
+  "translation_for_english_readers": [
+    "This field is not used in the application. Just for documentary purposes.",
+    "The above questions mean:",
+    "Is there a land and mortgage register established?",
+    "Are the land plots regulated?",
+    "What is the administration fee?",
+    "Is the apartment two-sided?"
+  ]
+}
