@@ -1,4 +1,5 @@
 import json
+import re
 from typing import Tuple
 
 from langchain_core.output_parsers import JsonOutputParser
@@ -126,4 +127,25 @@ if __name__ == "__main__":
         long_answer = tool.get_answers_natural_lang_pl()
         long_answer_content = long_answer.content
         json_answer = tool.extract_json_from_answer(long_answer)
-        print(long_answer_content, json_answer)
+        details = json.loads(json_answer)
+        with get_engine().connect() as cur:
+            sql = text(
+                """INSERT INTO retrieved_information(url, long_answer, mortgage_register, 
+                lands_regulated, rent_administration_fee, two_sided) 
+                VALUES(:url, :long_answer, :mortgage_register, :lands_regulated, 
+                :rent_administration_fee, :two_sided);"""
+            )
+            fee = details["rent_administration_fee"]
+            fee = None if not fee else float(re.sub("[^\d\.]", "", fee))
+            cur.execute(
+                sql,
+                {
+                    "url": url,
+                    "long_answer": long_answer,
+                    "mortgage_register": details["mortgage_register"],
+                    "lands_regulated": details["lands_regulated"],
+                    "rent_administration_fee": fee,
+                    "two_sided": details["two_sided"],
+                },
+            )
+            cur.commit()
