@@ -12,14 +12,11 @@ class BoolWithNA(Enum):
 
 
 class StructuredAnswers(BaseModel):
-    register: BoolWithNA = Field(
+    mortgage_register: BoolWithNA = Field(
         description="Is there a land and mortgage register established?"
     )
     lands_regulated: BoolWithNA = Field(description="Are the land plots regulated?")
-    administration_fee: Union[float, Literal["no_information"]] = Field(
-        description="What is the administration fee?", gt=0
+    rent_administration_fee: Union[float, Literal["no_information"]] = Field(
+        description="How much is the rent (administrative fee)?", gt=0
     )
     two_sided: BoolWithNA = Field(description="Is the apartment two-sided?")
-
-
-parser = JsonOutputParser(pydantic_object=StructuredAnswers)
