@@ -41,7 +41,7 @@ def get_questions():
 
 
 if __name__ == "__main__":
-    for url in list_offers()[:1]:
+    for url in list_offers():
         chat_history = ChatMessageHistory()
         prompt = ChatPromptTemplate.from_messages(
             [
@@ -52,6 +52,9 @@ if __name__ == "__main__":
                     "klienta. Wiesz, że skrót od księga wieczysta to KW lub kw. "
                     "Odpowiadasz na pytania na podstawie opisu, więc jeśli nie wiesz "
                     "jaka jest odpowiedź, powiedz, że nie ma danej informacji.",
+                    # ENG: You work in a real estate agency, you are concise,
+                    # KW is a shortcut for "ksiega wieczysta" (mortgage register),
+                    # if you don't know then don't make up
                 ),
                 MessagesPlaceholder(variable_name="messages"),
             ]
@@ -65,6 +68,8 @@ if __name__ == "__main__":
             f"Pytanie: ... \n"
             f"Odpowiedź: ...  \n"
             f"Pytania od kupujacego: {question} "
+            # ENG: read the offer, here are two different descriptions,
+            # follow a specific format, answer the questions
         )
         chain = prompt | model
 
@@ -83,7 +88,7 @@ if __name__ == "__main__":
         print(chat_history)
         print(ans)
         prompt = PromptTemplate(
-            template="Parse those previous and anwers to json.\n"
+            template="Parse those previous and answers to json.\n"
             "{format_instructions}\n{q_a}\n",
             input_variables=["q_a"],
             partial_variables={"format_instructions": parser.get_format_instructions()},
