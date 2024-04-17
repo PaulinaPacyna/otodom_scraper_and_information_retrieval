@@ -2,17 +2,17 @@ import json
 import re
 from typing import Tuple
 
+from langchain.memory import ChatMessageHistory
 from langchain_core.output_parsers import JsonOutputParser
 from langchain_core.prompts import (
     PromptTemplate,
     ChatPromptTemplate,
     MessagesPlaceholder,
 )
+from langchain_openai import ChatOpenAI
 from sqlalchemy import text
-from langchain.memory import ChatMessageHistory
-from apartments import get_engine
-from langchain_openai import ChatOpenAI, OpenAI
 
+from apartments import get_engine
 from json_parser import StructuredAnswers
 
 
@@ -130,13 +130,13 @@ if __name__ == "__main__":
         details = json.loads(json_answer)
         with get_engine().connect() as cur:
             sql = text(
-                """INSERT INTO retrieved_information(url, long_answer, mortgage_register, 
-                lands_regulated, rent_administration_fee, two_sided) 
+                """INSERT INTO retrieved_information(url, long_answer, 
+                mortgage_register, lands_regulated, rent_administration_fee, two_sided) 
                 VALUES(:url, :long_answer, :mortgage_register, :lands_regulated, 
                 :rent_administration_fee, :two_sided);"""
             )
             fee = details["rent_administration_fee"]
-            fee = None if not fee else float(re.sub("[^\d\.]", "", fee))
+            fee = None if not fee else float(re.sub(r"[^\d\.]", "", fee))
             cur.execute(
                 sql,
                 {
