@@ -4,9 +4,9 @@ Otodom.pl is a Polish online real estate marketplace. They provide a lot of usef
 
 This tool does the following:
  - scrapes all offers from a given `listing` link (like [this](https://www.otodom.pl/pl/wyniki/sprzedaz/mieszkanie/mazowieckie/warszawa/warszawa/warszawa/ursynow?priceMax=1000000&areaMin=50&viewType=listing)). The link can and should include built-in otodom filters
-[img](imgs/1.png)
+![img](imgs/1.png)
  - extracts the offer description and other stuff and saves it into a database 
- [img](imgs/2.png)
+ ![img](imgs/2.png)
  - Asks GPT (OpenAI) to answer questions from `questions.json` in natural language (using langchain)
  ```Example questions and answers:
 Question: Is the land regulated?
