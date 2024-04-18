@@ -12,7 +12,7 @@ from langchain_core.prompts import (
 from langchain_openai import ChatOpenAI
 from sqlalchemy import text
 
-from apartments import get_engine
+from database import get_engine
 from json_parser import StructuredAnswers
 
 
@@ -24,19 +24,18 @@ def list_offers():
         return [row[0] for row in result.fetchall()]
 
 
-def get_offer_info(url) -> Tuple[str, str]:
-    with get_engine().connect() as cur:
-        result = cur.execute(
-            text("SELECT table_dump, description from apartments where url=:url"),
-            {"url": url},
-        )
-        short_desc, desc = result.fetchone()
-        return short_desc, desc
-
-
 def get_questions():
     with open("questions.json", "r") as file:
         return json.load(file)["questions"]
+
+
+def information_already_exist(link):
+    with get_engine().connect() as cur:
+        result = cur.execute(
+            text("SELECT * from retrieved_informtion where url=:url"),
+            parameters={"url": link},
+        )
+        return bool(result.rowcount)
 
 
 class OfferInformationRetriever:
@@ -87,9 +86,18 @@ class OfferInformationRetriever:
 
         self.parser = JsonOutputParser(pydantic_object=StructuredAnswers)
 
+    def get_offer_info(self) -> Tuple[str, str]:
+        with get_engine().connect() as cur:
+            result = cur.execute(
+                text("SELECT table_dump, description from apartments where url=:url"),
+                {"url": self.url},
+            )
+            short_desc, desc = result.fetchone()
+            return short_desc, desc
+
     def get_answers_natural_lang_pl(self):
 
-        short_desc, desc = get_offer_info(url)
+        short_desc, desc = self.get_offer_info()
         question = "\n".join(get_questions())
         self.chat_history.add_user_message(
             self.answer_question_template.format(
@@ -121,32 +129,55 @@ class OfferInformationRetriever:
         return json
 
 
-if __name__ == "__main__":
+def insert_into_retrieved_information(
+    url,
+    long_answer,
+    mortgage_register,
+    lands_regulated,
+    rent_administration_fee,
+    two_sided,
+):
+    with get_engine().connect() as cur:
+        sql = text(
+            """INSERT INTO retrieved_information(url, long_answer, 
+            mortgage_register, lands_regulated, rent_administration_fee, two_sided) 
+            VALUES(:url, :long_answer, :mortgage_register, :lands_regulated, 
+            :rent_administration_fee, :two_sided);"""
+        )
+        fee = rent_administration_fee
+        if not isinstance(fee, (float, int)):
+            fee = None if not fee else float(re.sub(r"[^\d\.]", "", str(fee)))
+        cur.execute(
+            sql,
+            {
+                "url": url,
+                "long_answer": long_answer,
+                "mortgage_register": mortgage_register,
+                "lands_regulated": lands_regulated,
+                "rent_administration_fee": fee,
+                "two_sided": two_sided,
+            },
+        )
+        cur.commit()
+
+
+def main():
     for url in list_offers():
+        if information_already_exist(url):
+            print(f"Skipping {url} as it is already processed")
+            continue
         tool = OfferInformationRetriever(url)
         long_answer = tool.get_answers_natural_lang_pl()
         long_answer_content = long_answer.content
         json_answer = tool.extract_json_from_answer(long_answer)
-        details = json_answer
-        with get_engine().connect() as cur:
-            sql = text(
-                """INSERT INTO retrieved_information(url, long_answer, 
-                mortgage_register, lands_regulated, rent_administration_fee, two_sided) 
-                VALUES(:url, :long_answer, :mortgage_register, :lands_regulated, 
-                :rent_administration_fee, :two_sided);"""
-            )
-            fee = details["rent_administration_fee"]
-            if not isinstance(fee, (float, int)):
-                fee = None if not fee else float(re.sub(r"[^\d\.]", "", str(fee)))
-            cur.execute(
-                sql,
-                {
-                    "url": url,
-                    "long_answer": long_answer_content,
-                    "mortgage_register": details["mortgage_register"],
-                    "lands_regulated": details["lands_regulated"],
-                    "rent_administration_fee": fee,
-                    "two_sided": details["two_sided"],
-                },
-            )
-            cur.commit()
+        insert_into_retrieved_information(
+            long_answer=long_answer_content,
+            mortgage_register=json_answer["mortgage_register"],
+            lands_regulated=json_answer["lands_regulated"],
+            rent_administration_fee=json_answer["rent_administration_fee"],
+            two_sided=json_answer["two_sided"],
+        )
+
+
+if __name__ == "__main__":
+    main()

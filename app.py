@@ -1,7 +1,7 @@
 import streamlit as st
 from sqlalchemy import select
 
-from apartments import get_engine
+from database import get_engine
 from json_parser import BoolWithNA
 from tables import RetrievedInformation
 

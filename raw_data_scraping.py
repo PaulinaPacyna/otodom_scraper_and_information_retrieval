@@ -1,11 +1,11 @@
-import os
 from time import sleep
 
 from dotenv import load_dotenv
 from numpy.random import normal
-from sqlalchemy import create_engine, text, Engine
+from sqlalchemy import text
 
-from parseotom import get_all_offers, parse_description, parse_table
+from database import get_engine
+from otodom_parser import get_all_offers, parse_description, parse_table
 
 load_dotenv()
 
@@ -18,20 +18,8 @@ def apartment_already_exist(link):
         return bool(result.rowcount)
 
 
-def get_engine() -> Engine:
-    user = os.environ["POSTGRES_USERNAME"]
-    password = os.environ["POSTGRES_PASSWORD"]
-    db = os.environ["POSTGRES_USERNAME"]
-    host = os.environ["PG_HOST"]
-    port = os.environ["PG_PORT"]
-    return create_engine(f"postgresql+psycopg2://{user}:{password}@{host}:{port}/{db}")
+def scrape_offers_and_save(url):
 
-
-def scrape_offers_and_save():
-    url = (
-        "https://www.otodom.pl/pl/wyniki/sprzedaz/mieszkanie/mazowieckie/warszawa"
-        "/warszawa/warszawa/ursynow?priceMax=1000000&areaMin=50&viewType=listing"
-    )
     offers = get_all_offers(url)
     for link in offers[:3]:
         print(link)
@@ -56,4 +44,11 @@ def wait():
 
 
 if __name__ == "__main__":
-    scrape_offers_and_save()
+    # todo move to streamlit
+    url = (
+        "https://www.otodom.pl/pl/wyniki/sprzedaz/mieszkanie/mazowieckie/warszawa"
+        "/warszawa/warszawa/ursynow?priceMax=1000000&areaMin=50&viewType=listing"
+    )
+    scrape_offers_and_save(url)
+    for page in range(5):  # TODO scrape more than 5 (infer nr of pages)
+        scrape_offers_and_save(url + "&page")
