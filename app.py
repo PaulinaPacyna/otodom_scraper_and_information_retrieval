@@ -5,6 +5,7 @@ from database import get_engine
 from json_parser import BoolWithNA
 from tables import RetrievedInformation
 
+# TODO: include in docker compose
 st.set_page_config(layout="wide")
 st.title("Retrieved Information")
 
