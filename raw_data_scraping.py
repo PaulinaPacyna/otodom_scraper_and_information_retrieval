@@ -21,7 +21,7 @@ def apartment_already_exist(link):
 def scrape_offers_and_save(url):
 
     offers = get_all_offers(url)
-    for link in offers[:3]:
+    for link in offers:
         print(link)
         if apartment_already_exist(link):
             print(f"Skipping {link}")
@@ -51,4 +51,4 @@ if __name__ == "__main__":
     )
     scrape_offers_and_save(url)
     for page in range(5):  # TODO scrape more than 5 (infer nr of pages)
-        scrape_offers_and_save(url + "&page")
+        scrape_offers_and_save(url + f"&page={page}")

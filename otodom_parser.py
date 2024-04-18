@@ -15,7 +15,7 @@ def get_all_offers(url):
 def parse_table(url):
     req = Request(url, headers={"User-Agent": "Mozilla/5.0"})
     soup = bs(urlopen(req).read(), "html5lib")
-    table = soup.find("div", attrs={"data-testid": "ad.additional-information.table"})
+    table = soup.find("div", attrs={"data-testid": "ad.top-information.table"})
     table_dump = ""
     for div in table.find_all(
         lambda tag: tag.name == "div"
