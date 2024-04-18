@@ -2,6 +2,7 @@ import json
 import re
 from typing import Tuple
 
+from dotenv import load_dotenv
 from langchain.memory import ChatMessageHistory
 from langchain_core.output_parsers import JsonOutputParser
 from langchain_core.prompts import (
@@ -14,6 +15,9 @@ from sqlalchemy import text
 
 from database import get_engine
 from json_parser import StructuredAnswers
+
+
+load_dotenv()
 
 
 def list_offers():
@@ -32,7 +36,7 @@ def get_questions():
 def information_already_exist(link):
     with get_engine().connect() as cur:
         result = cur.execute(
-            text("SELECT * from retrieved_informtion where url=:url"),
+            text("SELECT * from retrieved_information where url=:url"),
             parameters={"url": link},
         )
         return bool(result.rowcount)
@@ -171,6 +175,7 @@ def main():
         long_answer_content = long_answer.content
         json_answer = tool.extract_json_from_answer(long_answer)
         insert_into_retrieved_information(
+            url=url,
             long_answer=long_answer_content,
             mortgage_register=json_answer["mortgage_register"],
             lands_regulated=json_answer["lands_regulated"],
@@ -180,4 +185,5 @@ def main():
 
 
 if __name__ == "__main__":
+    # TODO: add this as a button in streamlit
     main()
