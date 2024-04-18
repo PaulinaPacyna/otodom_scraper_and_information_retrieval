@@ -33,6 +33,11 @@ Answer: Yes, the description includes information that the apartment is two-side
 ```
  - Displays the offers back to the user, allows to filter based on the answers.
   [img](imgs/2.png)
+
+# Interesting files:
+ - retrieve_offer_information.py - information retrieval and parsing to json
+ - otodom_parser.py
+
   
 # Roadmap:
  - Retrieve street name from the descitpion call google maps api to compute the distance to "metro centrum" by public transportation.
