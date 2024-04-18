@@ -1,15 +1,17 @@
-from enum import Enum, auto
-from typing import Optional, Union, Literal
+from enum import Enum
+from typing import Union, Literal, List
 
-import numpy as np
-from pydantic import BaseModel, Field, validator
-from langchain_core.output_parsers import JsonOutputParser
+from pydantic import BaseModel, Field
 
 
 class BoolWithNA(Enum):
     true = "true"
     false = "false"
     no_information = "no_information"
+
+    @classmethod
+    def get_values(cls) -> List[str]:
+        return [key.value for key in cls]
 
 
 class StructuredAnswers(BaseModel):
