@@ -1,10 +1,12 @@
 import streamlit as st
+from dotenv import load_dotenv
 from sqlalchemy import select
 
 from database import get_engine
 from json_parser import BoolWithNA
 from tables import RetrievedInformation
 
+load_dotenv()
 # TODO: include in docker compose
 st.set_page_config(layout="wide")
 st.title("Retrieved Information")
